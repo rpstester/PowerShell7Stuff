@@ -774,14 +774,14 @@ function Get-FolderStatsBulk {
 .PARAMETER OutputFolder
  The folder in which to save all the CSV files 
 .EXAMPLE
- Get-FolderStatsBulk -shares \\itfs\it\Infrastructure, \\itfs\it\VDI -outputFolder "C:\users\rseeke1\OneDrive - Jefferson County KY Schools\Reports"
+ Get-FolderStatsBulk -shares \\itfs\it\Infrastructure, \\itfs\it\VDI -outputFolder "C:\users\rseeke1\OneDrive\Reports"
  Creates two CSV files in the Reports folder called itfs-it-VDI_2021-03-10.csv and 
  itfs-it-Infrastructure_2021-03-10, in which are rows for each subfolder with the total size and
  newest file (see Get-FolderStats)
 #>
 Param (
     $shares, #= "\\itfs\IT",
-    $outputFolder # = "C:\users\rseeke1\OneDrive - Jefferson County KY Schools\Reports"
+    $outputFolder # = "C:\users\rseeke1\OneDrive\Reports"
 )
 $today = Get-Date -Format "yyyy-MM-dd"
 
