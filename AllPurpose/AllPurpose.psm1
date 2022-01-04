@@ -87,8 +87,8 @@ function Test-ADCredential {
 .PARAMETER Credential
  An object such as Get-Credential returns.  Can be simply a username, and would then prompt for a password.
 .EXAMPLE
- Test-ADCredential rseeke1
- Would ask for password for rseeke1.  Would hopefully return true if I don't fat-finger the password!
+ Test-ADCredential johndoe
+ Would ask for password for johndoe.  Would hopefully return true if I don't fat-finger the password!
 .NOTES
  Copied from http://powershell.com/cs/blogs/tips/archive/2013/05/20/validating-active-directory-user-account-and-password.aspx on 5-21-13
  Help written by Roger P Seekell, 5-21-13
@@ -774,14 +774,14 @@ function Get-FolderStatsBulk {
 .PARAMETER OutputFolder
  The folder in which to save all the CSV files 
 .EXAMPLE
- Get-FolderStatsBulk -shares \\itfs\it\Infrastructure, \\itfs\it\VDI -outputFolder "C:\users\rseeke1\OneDrive\Reports"
+ Get-FolderStatsBulk -shares \\itfs\it\Infrastructure, \\itfs\it\VDI -outputFolder "C:\users\johndoe\OneDrive\Reports"
  Creates two CSV files in the Reports folder called itfs-it-VDI_2021-03-10.csv and 
  itfs-it-Infrastructure_2021-03-10, in which are rows for each subfolder with the total size and
  newest file (see Get-FolderStats)
 #>
 Param (
     $shares, #= "\\itfs\IT",
-    $outputFolder # = "C:\users\rseeke1\OneDrive\Reports"
+    $outputFolder # = "C:\users\johndoe\OneDrive\Reports"
 )
 $today = Get-Date -Format "yyyy-MM-dd"
 
