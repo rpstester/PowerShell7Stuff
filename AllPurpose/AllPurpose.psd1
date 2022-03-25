@@ -72,7 +72,7 @@ PowerShellVersion = '7.0'
 FunctionsToExport = 'get-ComputerNames', 'Test-ADCredential', 'get-LocalGroupMember', 
 'add-LocalGroupMember', 'remove-LocalGroupMember', 'Get-LastBootTime', 
 'get-ComputerSpecs', 'start-ProgressCountdown', 'convertTo-ByteString',
-'connect-Office365Session', 'measure-Path', 'search-Script', 
+'measure-Path', 'search-Script', 'Get-QLoggedOnUser'
 'Get-Temppassword','Get-NewestFile','Get-FolderStats','Get-FolderStatsBulk'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
