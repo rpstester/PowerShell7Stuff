@@ -869,6 +869,133 @@ function Get-Temppassword {
 }#end function 
 #--------------------
 
+function Get-QLoggedOnUser {
+<#
+.Synopsis
+Queries a computer to check for interactive sessions with quser
+
+.DESCRIPTION
+This script takes the output from the quser program and parses this to PowerShell objects
+Converted to function and changed datatype by Roger P Seekell, ?-2014
+
+.NOTES   
+Name: Get-LoggedOnUser
+Author: Jaap Brasser
+Version: 1.2
+DateUpdated: 2015-07-07
+Source: https://gallery.technet.microsoft.com/scriptcenter/Get-LoggedOnUser-Gathers-7cbe93ea
+
+.LINK
+http://www.jaapbrasser.com
+
+.PARAMETER ComputerName
+The string or array of string for which a query will be executed
+
+.EXAMPLE
+Get-LoggedOnUser -ComputerName server01,server02
+
+Description:
+Will display the session information on server01 and server02
+
+.EXAMPLE
+'server01','server02' | Get-LoggedOnUser
+
+Description:
+Will display the session information on server01 and server02
+#>
+param(
+    [CmdletBinding()] 
+    [Parameter(ValueFromPipeline=$true,
+                ValueFromPipelineByPropertyName=$true)]
+    [string[]]$ComputerName = 'localhost'
+)
+begin {
+    $ErrorActionPreference = 'Stop'
+
+    Function Convert-IdleTimeStringToTimeSpan {
+    #added by kbgeoff on Oct. 15, 2013 in Q&A
+    param(
+        [CmdletBinding()]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$false)]
+        [String]$IdleTime
+    )
+    
+    Begin {
+        $Days, $Hours, $Minutes = 0, 0, 0
+    }
+
+    Process {
+        if ( $IdleTime -eq "none" ) {
+            #do nothing; keep at zero
+        }
+        elseIf ( $IdleTime -ne '.' ) {
+            If ( $IdleTime -like '*+*' ) {
+                $Days, $IdleTime = $IdleTime.Split('+')
+            }
+        
+            If ( $IdleTime -like '*:*' ) {
+                $Hours, $Minutes = $IdleTime.Split(':')
+            }
+            Else {
+                $Minutes = $IdleTime
+            }
+        }
+    }
+        
+    End {
+        New-Timespan -Days $Days -Hours $Hours -Minutes $Minutes
+    }
+    }#end internal function
+    
+}#end of beginning
+    
+process {
+    foreach ($Computer in $ComputerName) {
+        try {
+            quser /server:$Computer 2>&1 | Select-Object -Skip 1 | ForEach-Object {
+                $CurrentLine = $_.Trim() -Replace '\s+',' ' -Split '\s'
+                $HashProps = @{
+                    UserName = $CurrentLine[0]
+                    ComputerName = $Computer
+                }
+
+                # If session is disconnected different fields will be selected
+                if ($CurrentLine[2] -eq 'Disc') {
+                        $HashProps.SessionName = $null
+                        $HashProps.Id = $CurrentLine[1]
+                        $HashProps.State = $CurrentLine[2]
+                        $HashProps.IdleTime = Convert-IdleTimeStringToTimeSpan($CurrentLine[3])
+                        $HashProps.LogonTime = $CurrentLine[4..6] -join ' '
+                } else {
+                        $HashProps.SessionName = $CurrentLine[1]
+                        $HashProps.Id = $CurrentLine[2]
+                        $HashProps.State = $CurrentLine[3]
+                        $HashProps.IdleTime = Convert-IdleTimeStringToTimeSpan($CurrentLine[4])
+                        $HashProps.LogonTime = $CurrentLine[5..7] -join ' '
+                }
+
+                New-Object -TypeName PSCustomObject -Property $HashProps |
+                Select-Object -Property UserName,ComputerName,SessionName,Id,State,IdleTime,LogonTime,Error
+            }
+        } #end try
+        catch {
+            if ($_.exception.message -like "No User exists for*") {
+                Write-Verbose "No users logged onto $computer"
+            }
+            else {
+                $error[0].ToString()
+                Write-Error "Could not access '$Computer': $($_.Exception.Message)"
+            }
+        }#end catch
+    }#end foreach
+}#end of process
+
+end {#not needed
+}
+
+}#end function
+#-------------------------------
+
 Register-ArgumentCompleter -CommandName get-LocalGroupMember, add-LocalGroupMember, remove-LocalGroupMember -ParameterName Group -ScriptBlock {
     Get-LocalGroup | ForEach-Object {"'" + $_.name + "'"}
 }
